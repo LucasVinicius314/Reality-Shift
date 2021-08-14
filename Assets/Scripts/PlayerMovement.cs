@@ -20,7 +20,7 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("Jumping")]
     public float jumpForce = 5f;
-    bool canDoubleJump = true;
+    public bool canDoubleJump = true;
 
     [Header("Keybinds")]
     [SerializeField] KeyCode jumpKey = KeyCode.Space;
@@ -46,6 +46,9 @@ public class PlayerMovement : MonoBehaviour
 
     RaycastHit slopeHit;
 
+    // added a reference to the WallRun script so it can be used to access wall run properties
+    WallRun wallRun;
+
     private bool OnSlope()
     {
         if (Physics.Raycast(transform.position, Vector3.down, out slopeHit, playerHeight / 2 + 0.5f))
@@ -66,6 +69,8 @@ public class PlayerMovement : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
+        // sets the WallRun script reference to the one that's being used by the player
+        wallRun = GetComponent<WallRun>();
     }
 
     private void Update()
@@ -100,14 +105,12 @@ public class PlayerMovement : MonoBehaviour
             rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z);
             rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
         }
-        else
+        else if(canDoubleJump && !(wallRun.wallLeft || wallRun.wallRight))
         {
-            if(canDoubleJump)
-            {
-                canDoubleJump = false;
-                rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z);
-                rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
-            }
+          // if you can still double jump and you're not touching a wall, you should use your double jump
+            canDoubleJump = false;
+            rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z);
+            rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
         }
     }
 

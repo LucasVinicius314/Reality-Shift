@@ -25,13 +25,17 @@ public class WallRun : MonoBehaviour
 
     public float tilt { get; private set; }
 
-    private bool wallLeft = false;
-    private bool wallRight = false;
+    // made them public so they can be accessed from another script
+    public bool wallLeft = false;
+    public bool wallRight = false;
 
     RaycastHit leftWallHit;
     RaycastHit rightWallHit;
 
     private Rigidbody rb;
+
+    // added a reference to the PlayerMovement script so it can be used to access some player movement properties
+    PlayerMovement playerMovement;
 
     bool CanWallRun()
     {
@@ -41,6 +45,8 @@ public class WallRun : MonoBehaviour
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
+        // added this so the reference to the PlayerMovement script becomes available as soon as the game starts
+        playerMovement = GetComponent<PlayerMovement>();
     }
 
     void CheckWall()
@@ -76,10 +82,13 @@ public class WallRun : MonoBehaviour
 
     void StartWallRun()
     {
+        // maybe add it back? not sure
         //rb.useGravity = false;
-        print("bbbbbbbbbbbbbbbbbbbbbbbb ");
 
-        rb.AddForce(Vector3.down * wallRunGravity, ForceMode.Acceleration);
+        // rb.AddForce(Vector3.down * wallRunGravity, ForceMode.Acceleration);
+
+        // enables the double jump again, because you started wallrunning so you should have an extra one
+        playerMovement.canDoubleJump = true;
 
         cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, wallRunfov, wallRunfovTime * Time.deltaTime);
 
@@ -109,7 +118,6 @@ public class WallRun : MonoBehaviour
     void StopWallRun()
     {
         rb.useGravity = true;
-        print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 
         cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, fov, wallRunfovTime * Time.deltaTime);
         tilt = Mathf.Lerp(tilt, 0, camTiltTime * Time.deltaTime);
